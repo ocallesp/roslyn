@@ -36,10 +36,10 @@ namespace Microsoft.VisualStudio.LanguageServices.CSharp.CodeModel
         internal CSharpCodeModelService(
             HostLanguageServices languageServiceProvider,
             IEditorOptionsFactoryService editorOptionsFactoryService,
-            IEnumerable<IRefactorNotifyService> refactorNotifyServices)
+            IRoslynRefactorNotifyService roslynRefactorNotifyServices)
             : base(languageServiceProvider,
                    editorOptionsFactoryService,
-                   refactorNotifyServices,
+                   roslynRefactorNotifyServices,
                    BlankLineInGeneratedMethodFormattingRule.Instance,
                    EndRegionFormattingRule.Instance)
         {

@@ -46,7 +46,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel
         private readonly AbstractNodeNameGenerator _nodeNameGenerator;
         private readonly AbstractNodeLocator _nodeLocator;
         private readonly AbstractCodeModelEventCollector _eventCollector;
-        private readonly IEnumerable<IRefactorNotifyService> _refactorNotifyServices;
+        private readonly IRoslynRefactorNotifyService _RoslynRefactorNotifyServices;
 
         private readonly AbstractFormattingRule _lineAdjustmentFormattingRule;
         private readonly AbstractFormattingRule _endRegionFormattingRule;
@@ -54,7 +54,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel
         protected AbstractCodeModelService(
             HostLanguageServices languageServiceProvider,
             IEditorOptionsFactoryService editorOptionsFactoryService,
-            IEnumerable<IRefactorNotifyService> refactorNotifyServices,
+            IRoslynRefactorNotifyService roslynRefactorNotifyServices,
             AbstractFormattingRule lineAdjustmentFormattingRule,
             AbstractFormattingRule endRegionFormattingRule)
         {
@@ -66,7 +66,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel
             _editorOptionsFactoryService = editorOptionsFactoryService;
             _lineAdjustmentFormattingRule = lineAdjustmentFormattingRule;
             _endRegionFormattingRule = endRegionFormattingRule;
-            _refactorNotifyServices = refactorNotifyServices;
+            _RoslynRefactorNotifyServices = roslynRefactorNotifyServices;
             _nodeNameGenerator = CreateNodeNameGenerator();
             _nodeLocator = CreateNodeLocator();
             _eventCollector = CreateCodeModelEventCollector();
@@ -495,11 +495,12 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel
 
             // Rename symbol.
             var oldSolution = workspace.CurrentSolution;
+            _RoslynRefactorNotifyServices.RefactorNotify(symbol, newName, workspace, oldSolution);
             var newSolution = Renamer.RenameSymbolAsync(oldSolution, symbol, newName, oldSolution.Options).WaitAndGetResult_CodeModel(CancellationToken.None);
             var changedDocuments = newSolution.GetChangedDocuments(oldSolution);
 
             // Notify third parties of the coming rename operation and let exceptions propagate out
-            _refactorNotifyServices.TryOnBeforeGlobalSymbolRenamed(workspace, changedDocuments, symbol, newName, throwOnFailure: true);
+            //_refactorNotifyServices.TryOnBeforeGlobalSymbolRenamed(workspace, changedDocuments, symbol, newName, throwOnFailure: true);
 
             // Update the workspace.
             if (!workspace.TryApplyChanges(newSolution))
@@ -508,7 +509,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.CodeModel
             }
 
             // Notify third parties of the completed rename operation and let exceptions propagate out
-            _refactorNotifyServices.TryOnAfterGlobalSymbolRenamed(workspace, changedDocuments, symbol, newName, throwOnFailure: true);
+            //_refactorNotifyServices.TryOnAfterGlobalSymbolRenamed(workspace, changedDocuments, symbol, newName, throwOnFailure: true);
 
             RenameTrackingDismisser.DismissRenameTracking(workspace, changedDocuments);
 

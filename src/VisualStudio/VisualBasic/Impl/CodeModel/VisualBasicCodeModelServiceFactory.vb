@@ -15,20 +15,20 @@ Namespace Microsoft.VisualStudio.LanguageServices.VisualBasic.CodeModel
         Implements ILanguageServiceFactory
 
         Private ReadOnly _editorOptionsFactoryService As IEditorOptionsFactoryService
-        Private ReadOnly _refactorNotifyServices As IEnumerable(Of IRefactorNotifyService)
+        Private ReadOnly _roslynRefactorNotifyServices As IRoslynRefactorNotifyService
         Private ReadOnly _commitBufferManagerFactory As CommitBufferManagerFactory
 
         <ImportingConstructor>
         Public Sub New(editorOptionsFactoryService As IEditorOptionsFactoryService,
-                        <ImportMany> refactorNotifyServices As IEnumerable(Of IRefactorNotifyService),
+                        <ImportMany> roslynRefactorNotifyServices As IRoslynRefactorNotifyService,
                         commitBufferManagerFactory As CommitBufferManagerFactory)
             Me._editorOptionsFactoryService = editorOptionsFactoryService
-            Me._refactorNotifyServices = refactorNotifyServices
+            Me._roslynRefactorNotifyServices = roslynRefactorNotifyServices
             Me._commitBufferManagerFactory = commitBufferManagerFactory
         End Sub
 
         Public Function CreateLanguageService(provider As HostLanguageServices) As ILanguageService Implements ILanguageServiceFactory.CreateLanguageService
-            Return New VisualBasicCodeModelService(provider, Me._editorOptionsFactoryService, _refactorNotifyServices, _commitBufferManagerFactory)
+            Return New VisualBasicCodeModelService(provider, Me._editorOptionsFactoryService, _roslynRefactorNotifyServices, _commitBufferManagerFactory)
         End Function
     End Class
 End Namespace
